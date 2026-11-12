@@ -1,0 +1,66 @@
+
+def debuff(condition, player_stats, untreated_turns, used_remedy):
+    """
+    Calculate the health and energy penalties caused by a event: physical wound,
+    illness, or exhaustion.
+
+    Args:
+        condition (str): The situation the player is in: ("physical wound", "illness", or "exhaustion").
+        player_stats (dict): The player's current stats: health and energy.
+        untreated_turns (int): The number of turns for which condition has gone untreated.
+        used_remedy (bool): Whether the player has medical supplies or food/rest.
+
+    Returns:
+        outcome(dict): Updated player stats after total health and energy debuffs.
+
+    Raises:
+        ValueError
+        
+    Side Effects: 
+        Calculated level of debuff player health stat.
+
+    """
+
+    if condition not in ["physical wound", "illness", "exhaustion"]:
+        raise ValueError("Unknown condition.")
+    if untreated_turns < 0:
+        raise ValueError("Untreated turns cannot be negative.")
+    for stat in ["health", "energy"]:
+        if stat not in player_stats or not 0 <= player_stats[stat] <= 100:
+            raise ValueError("Health and energy must be between 0-100.")
+
+    # Base damage for each condition, regardless of final player_stat args
+    # Only slter these args, amount of damage subject to change.
+    if condition == "physical wound":
+        damage = {"health": 10, "energy": 5}
+    elif condition == "illness":
+        damage = {"health": 5, "energy": 5}
+    else:
+        damage = {"health": 2, "energy": 7}
+
+    # Calculate the total damage over each untreated turn
+    total_debuffs = {"health": 0, "energy": 0}
+
+    for turn in range(untreated_turns):
+        for stat in damage:
+            additional_damage = damage[stat]
+
+            # Conditions become more damaging after not being treated for a turn
+            if turn >= 2:
+                additional_damage += 2
+
+            # Remedy reduces the damage
+            if used_remedy:
+                additional_damage = max(1, additional_damage // 2)
+
+            total_debuffs[stat] += additional_damage
+
+    outcome = {}
+    # This is subject to change when player_stats is implemented.
+    for stat in ["health", "energy"]:
+        outcome[stat] = max(0, player_stats[stat] - total_debuffs[stat])
+
+    outcome["health_debuff"] = total_debuffs["health"]
+    outcome["energy_debuff"] = total_debuffs["energy"]
+
+    return outcome
