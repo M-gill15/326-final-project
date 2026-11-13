@@ -2,6 +2,7 @@ def update_stats(stats, changes):
     """Keeps track of player stats and updates player stats after a choice is made in story.
     Args:
         stats (dict[str, int]): stat name and current value.
+        changes (dict[str, int]): stat names and amounts to add or subtract.
     Returns:
         dict[str, int]: updated stats.
     Side Effects:
